@@ -1,0 +1,24 @@
+function smime_sign($mail, $pki)
+{
+    $headersadded = [];
+    $headers = array_join(array_reduce(function($x, $y) closure ($headersadded, $mail) {
+        if ($y == "mime-version" or $y[0:8] == "content-")
+            return [...$x, $mail->getHeader($y, [
+                        "field" => true,
+                        "index" => $headersadded[$y] !== none ? ++$headersadded[$y] : $headersadded[$y] = 0
+                    ])];
+        return $x;
+    }, $mail->getHeaderNames(), []));
+    $body = $mail->getBody(["decode" => false]);
+    if ($body === none)
+        return false;
+    $data = $headers."\r\n".$body;
+
+    $s = MIME();
+    $s->addHeader("Content-Type", ''application/pkcs7-signature; name="smime.p7s"'');
+    $s->addHeader("Content-Transfer-Encoding", "base64");
+    $s->addHeader("Content-Disposition", ''attachment; filename="smime.p7s"'');
+    $s->setBody(pkcs7_sign($data, $pki, ["id" => true]));
+    $mail->appendPart($s, ["type" => ''multipart/signed; protocol="application/pkcs7-signature"; micalg="sha-256"'']);
+    return true;
+}
