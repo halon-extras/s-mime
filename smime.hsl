@@ -12,7 +12,7 @@ function smime_sign($mail, $pki)
     $body = $mail->getBody(["decode" => false]);
     if ($body === none)
         return false;
-    $data = $headers."\r\n".$body;
+    $data = pcre_replace(#/(([^\r]|^)\n)/sm, "$2\r\n", $headers."\r\n".$body);
 
     $s = MIME();
     $s->addHeader("Content-Type", ''application/pkcs7-signature; name="smime.p7s"'');
