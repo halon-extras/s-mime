@@ -1,4 +1,4 @@
-function smime_sign($mail, $pki)
+function smime_sign($mail, $pki, $opts = [])
 {
 	$headersadded = [];
 	$headers = array_join(array_reduce(function($x, $y) closure ($headersadded, $mail) {
@@ -12,13 +12,17 @@ function smime_sign($mail, $pki)
 	$body = $mail->getBody(["decode" => false]);
 	if ($body === none)
 		return false;
-	$data = pcre_replace(#/(?<!\r)\n/, "\r\n", $headers."\r\n".$body);
+
+	if ($opts["crlf"] ?? true)
+		$data = pcre_replace(#/(?<!\r)\n/, "\r\n", $headers."\r\n".$body);
+	else
+		$data = $headers."\r\n".$body;
 
 	$s = MIME();
 	$s->addHeader("Content-Type", ''application/pkcs7-signature; name="smime.p7s"'');
 	$s->addHeader("Content-Transfer-Encoding", "base64");
 	$s->addHeader("Content-Disposition", ''attachment; filename="smime.p7s"'');
-	$s->setBody(pkcs7_sign($data, $pki, ["id" => true]));
+	$s->setBody(pkcs7_sign($data, $pki, ["id" => $opts["id"] ?? true]));
 	$mail->appendPart($s, ["type" => ''multipart/signed; protocol="application/pkcs7-signature"; micalg="sha-256"'']);
 	return true;
 }
