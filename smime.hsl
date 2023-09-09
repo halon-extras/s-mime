@@ -2,17 +2,17 @@ function smime_sign($mail, $pki)
 {
 	$headersadded = [];
 	$headers = array_join(array_reduce(function($x, $y) closure ($headersadded, $mail) {
-				if ($y == "mime-version" or $y[0:8] == "content-")
-				return [...$x, $mail->getHeader($y, [
+		if ($y == "mime-version" or $y[0:8] == "content-")
+			return [...$x, $mail->getHeader($y, [
 						"field" => true,
 						"index" => $headersadded[$y] !== none ? ++$headersadded[$y] : $headersadded[$y] = 0
-				])];
-				return $x;
-				}, $mail->getHeaderNames(), []));
+					])];
+		return $x;
+	}, $mail->getHeaderNames(), []));
 	$body = $mail->getBody(["decode" => false]);
 	if ($body === none)
 		return false;
-	$data = pcre_replace(#/(([^\r]|^)\n)/sm, "$2\r\n", $headers."\r\n".$body);
+	$data = pcre_replace(#/(?<!\r)\n/, "\r\n", $headers."\r\n".$body);
 
 	$s = MIME();
 	$s->addHeader("Content-Type", ''application/pkcs7-signature; name="smime.p7s"'');
