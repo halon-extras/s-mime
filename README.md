@@ -29,7 +29,7 @@ S/MIME (PKCS7) sign mail message.
 **Params**
 
 - mail `MailMessage` - The mail message
-- pki `array|string` - An array with a "x509" (X509 type) certificate, "privatekey" (PrivateKey type) and "chain" (array of X509 types) or an PKI id
+- pki `array|string` - An array with a "x509" (X509Resource) certificate, "privatekey" (PrivateKey) and "chain" (array of X509Resource) or an PKI id as string
 - opts `array` - An options array
 
 The following options are available in the options array
