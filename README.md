@@ -46,7 +46,7 @@ Boolean true if the message was successfully signed
 ```
 import { smime_sign } from "extras://smime";
 import $crt from "file://sample.crt" with ["resource" => true];
-import $key from "file://smaple.key";
+import $key from "file://sample.key";
 
 smime_sign($mail, ["x509" => $crt[0], "privatekey" => $key, "chain" => $crt[1:]]);
 ```
